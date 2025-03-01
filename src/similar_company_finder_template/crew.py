@@ -66,7 +66,7 @@ class SimilarCompanyFinderTemplateCrew:
         return Task(
             config=self.tasks_config["evaluate_similarity_task"],
             agent=self.similarity_evaluator(),
-            human_in_the_loop=True,
+            human_input=True,
         )
 
     @task
@@ -89,11 +89,64 @@ class SimilarCompanyFinderTemplateCrew:
         )
 
     # Example of how to run the crew with HITL webhook
-    # def run_with_hitl(self, webhook_url):
-    #     """Run the crew with Human-in-the-Loop enabled"""
-    #     crew_instance = self.crew()
-    #     result = crew_instance.kickoff(
-    #         inputs={},  # Your inputs here
-    #         webhook_url=webhook_url  # URL that will receive notifications when human input is needed
-    #     )
-    #     return result
+    def run_with_hitl(self, webhook_url=None):
+        """Run the crew with Human-in-the-Loop enabled
+        
+        Note: In crewAI 0.76.2, webhook URLs are not directly supported.
+        The human_input flag on tasks is used to enable human-in-the-loop functionality.
+        This method includes a custom implementation to send notifications to a webhook URL.
+        """
+        import requests
+        import threading
+        
+        # Make sure the evaluate_similarity_task has human_input=True
+        crew_instance = self.crew()
+        
+        inputs = {
+            "target_company": "<Placeholder Company>",
+            "our_product": "<Placeholder Product>",
+        }
+        
+        # Define a function to monitor for human input requests
+        def monitor_for_human_input():
+            import time
+            # This is a simplified approach - in a real implementation, you would
+            # need to hook into crewAI's event system or use a more sophisticated method
+            print(f"Setting up webhook notification to: {webhook_url}")
+            if webhook_url:
+                try:
+                    # Send a notification to the webhook URL
+                    response = requests.post(
+                        webhook_url,
+                        json={
+                            "message": "Human input required for SimilarCompanyFinderTemplate",
+                            "timestamp": time.time(),
+                            "status": "waiting_for_input"
+                        }
+                    )
+                    print(f"Webhook notification sent. Response: {response.status_code}")
+                except Exception as e:
+                    print(f"Failed to send webhook notification: {e}")
+        
+        # Start the monitoring thread before kicking off the crew
+        if webhook_url:
+            threading.Thread(target=monitor_for_human_input).start()
+        
+        # Run the crew
+        result = crew_instance.kickoff(inputs=inputs)
+        
+        # Send completion notification
+        if webhook_url:
+            try:
+                requests.post(
+                    webhook_url,
+                    json={
+                        "message": "SimilarCompanyFinderTemplate execution completed",
+                        "timestamp": time.time(),
+                        "status": "completed"
+                    }
+                )
+            except Exception as e:
+                print(f"Failed to send completion webhook notification: {e}")
+        
+        return result
