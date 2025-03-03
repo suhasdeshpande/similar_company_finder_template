@@ -78,75 +78,28 @@ class SimilarCompanyFinderTemplateCrew:
         )
 
     @crew
-    def crew(self) -> Crew:
+    def crew(self, humanInputWebhookUrl=None) -> Crew:
         """Creates the SimilarCompanyFinderTemplate crew"""
         return Crew(
             agents=self.agents,  # Automatically created by the @agent decorator
             tasks=self.tasks,  # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
+            human_input_webhook_url=humanInputWebhookUrl,  # Pass the webhook URL to Crew
             # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )
 
-    # Example of how to run the crew with HITL webhook
-    def run_with_hitl(self, webhook_url=None):
-        """Run the crew with Human-in-the-Loop enabled
+    def run(self, inputs=None, humanInputWebhookUrl=None):
+        """Run the crew with optional human input webhook for enterprise deployment
         
-        Note: In crewAI 0.76.2, webhook URLs are not directly supported.
-        The human_input flag on tasks is used to enable human-in-the-loop functionality.
-        This method includes a custom implementation to send notifications to a webhook URL.
+        Args:
+            inputs (dict, optional): Input parameters for the crew
+            humanInputWebhookUrl (str, optional): Webhook URL for human input in enterprise deployment
         """
-        import requests
-        import threading
-        
-        # Make sure the evaluate_similarity_task has human_input=True
-        crew_instance = self.crew()
-        
-        inputs = {
-            "target_company": "<Placeholder Company>",
-            "our_product": "<Placeholder Product>",
-        }
-        
-        # Define a function to monitor for human input requests
-        def monitor_for_human_input():
-            import time
-            # This is a simplified approach - in a real implementation, you would
-            # need to hook into crewAI's event system or use a more sophisticated method
-            print(f"Setting up webhook notification to: {webhook_url}")
-            if webhook_url:
-                try:
-                    # Send a notification to the webhook URL
-                    response = requests.post(
-                        webhook_url,
-                        json={
-                            "message": "Human input required for SimilarCompanyFinderTemplate",
-                            "timestamp": time.time(),
-                            "status": "waiting_for_input"
-                        }
-                    )
-                    print(f"Webhook notification sent. Response: {response.status_code}")
-                except Exception as e:
-                    print(f"Failed to send webhook notification: {e}")
-        
-        # Start the monitoring thread before kicking off the crew
-        if webhook_url:
-            threading.Thread(target=monitor_for_human_input).start()
-        
-        # Run the crew
-        result = crew_instance.kickoff(inputs=inputs)
-        
-        # Send completion notification
-        if webhook_url:
-            try:
-                requests.post(
-                    webhook_url,
-                    json={
-                        "message": "SimilarCompanyFinderTemplate execution completed",
-                        "timestamp": time.time(),
-                        "status": "completed"
-                    }
-                )
-            except Exception as e:
-                print(f"Failed to send completion webhook notification: {e}")
-        
-        return result
+        if inputs is None:
+            inputs = {
+                "target_company": "<Placeholder Company>",
+                "our_product": "<Placeholder Product>",
+            }
+            
+        return self.crew(humanInputWebhookUrl=humanInputWebhookUrl).kickoff(inputs=inputs)

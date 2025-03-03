@@ -18,7 +18,7 @@ def run():
         "our_product": "<Placeholder Product>",
     }
 
-    SimilarCompanyFinderTemplateCrew().crew().kickoff(inputs=inputs)
+    SimilarCompanyFinderTemplateCrew().run(inputs=inputs)
 
 
 def train():
