@@ -78,23 +78,21 @@ class SimilarCompanyFinderTemplateCrew:
         )
 
     @crew
-    def crew(self, humanInputWebhookUrl=None) -> Crew:
+    def crew(self) -> Crew:
         """Creates the SimilarCompanyFinderTemplate crew"""
         return Crew(
             agents=self.agents,  # Automatically created by the @agent decorator
             tasks=self.tasks,  # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
-            human_input_webhook_url=humanInputWebhookUrl,  # Pass the webhook URL to Crew
             # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )
 
-    def run(self, inputs=None, humanInputWebhookUrl=None):
-        """Run the crew with optional human input webhook for enterprise deployment
+    def run(self, inputs=None):
+        """Run the crew
         
         Args:
             inputs (dict, optional): Input parameters for the crew
-            humanInputWebhookUrl (str, optional): Webhook URL for human input in enterprise deployment
         """
         if inputs is None:
             inputs = {
@@ -102,4 +100,4 @@ class SimilarCompanyFinderTemplateCrew:
                 "our_product": "<Placeholder Product>",
             }
             
-        return self.crew(humanInputWebhookUrl=humanInputWebhookUrl).kickoff(inputs=inputs)
+        return self.crew().kickoff(inputs=inputs)
