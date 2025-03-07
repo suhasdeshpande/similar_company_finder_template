@@ -25,10 +25,9 @@ evaluate_similarity_task:
     Evaluate each of the potential similar companies identified. Compare them
     to the profile of {target_company}, considering all relevant factors. Assign
     a similarity score to each company on a scale of 0 to 1, where 1 is most
-    similar. Provide a brief explanation for each score. IMPORTANT: Before submitting
-    your final analysis, you must present your draft evaluation to a human reviewer
-    and obtain their explicit approval. Only proceed with finalizing and submitting
-    your analysis after receiving confirmation from the human reviewer.
+    similar. Provide a brief explanation for each score. After completing the full
+    evaluation of all companies, present the complete list once to a human reviewer
+    for final approval before proceeding.
   expected_output: >
     A list of evaluated companies, each with a similarity score and brief
     explanation. Companies should be sorted by similarity score, with the
