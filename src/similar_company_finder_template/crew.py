@@ -6,80 +6,55 @@ from crewai.project import CrewBase, agent, crew, task
 
 @CrewBase
 class SimilarCompanyFinderTemplateCrew:
-    """SimilarCompanyFinderTemplate crew"""
+    """Restaurant Recommendation Crew"""
 
     agents_config = "config/agents.yaml"
     tasks_config = "config/tasks.yaml"
 
     @agent
-    def company_analyst(self) -> Agent:
+    def restaurant_researcher(self) -> Agent:
         return Agent(
-            config=self.agents_config["company_analyst"],
+            config=self.agents_config["restaurant_researcher"],
             tools=[SerperDevTool(), ScrapeWebsiteTool()],
             allow_delegation=False,
             verbose=True,
         )
 
     @agent
-    def market_researcher(self) -> Agent:
+    def recommendation_specialist(self) -> Agent:
         return Agent(
-            config=self.agents_config["market_researcher"],
-            tools=[SerperDevTool(), ScrapeWebsiteTool()],
-            allow_delegation=False,
-            verbose=True,
-        )
-
-    @agent
-    def similarity_evaluator(self) -> Agent:
-        return Agent(
-            config=self.agents_config["similarity_evaluator"],
-            tools=[],
-            allow_delegation=False,
-            verbose=True,
-        )
-
-    @agent
-    def sales_strategist(self) -> Agent:
-        return Agent(
-            config=self.agents_config["sales_strategist"],
+            config=self.agents_config["recommendation_specialist"],
             tools=[],
             allow_delegation=False,
             verbose=True,
         )
 
     @task
-    def analyze_target_company_task(self) -> Task:
+    def search_restaurants_task(self) -> Task:
         return Task(
-            config=self.tasks_config["analyze_target_company_task"],
-            agent=self.company_analyst(),
+            config=self.tasks_config["search_restaurants_task"],
+            agent=self.restaurant_researcher(),
         )
 
     @task
-    def find_potential_similar_companies_task(self) -> Task:
+    def present_recommendations_task(self) -> Task:
         return Task(
-            config=self.tasks_config["find_potential_similar_companies_task"],
-            agent=self.market_researcher(),
-        )
-
-    @task
-    def evaluate_similarity_task(self) -> Task:
-        return Task(
-            config=self.tasks_config["evaluate_similarity_task"],
-            agent=self.similarity_evaluator(),
+            config=self.tasks_config["present_recommendations_task"],
+            agent=self.recommendation_specialist(),
             human_input=True,
         )
 
     @task
-    def develop_approach_recommendations_task(self) -> Task:
+    def respond_to_feedback_task(self) -> Task:
         return Task(
-            config=self.tasks_config["develop_approach_recommendations_task"],
-            agent=self.sales_strategist(),
-            output_file="approach_recommendations.md",
+            config=self.tasks_config["respond_to_feedback_task"],
+            agent=self.recommendation_specialist(),
+            output_file="restaurant_recommendations.md",
         )
 
     @crew
     def crew(self) -> Crew:
-        """Creates the SimilarCompanyFinderTemplate crew"""
+        """Creates the Restaurant Recommendation crew"""
         return Crew(
             agents=self.agents,  # Automatically created by the @agent decorator
             tasks=self.tasks,  # Automatically created by the @task decorator
@@ -96,8 +71,7 @@ class SimilarCompanyFinderTemplateCrew:
         """
         if inputs is None:
             inputs = {
-                "target_company": "<Placeholder Company>",
-                "our_product": "<Placeholder Product>",
+                "location": "San Francisco, CA",
             }
             
         return self.crew().kickoff(inputs=inputs)

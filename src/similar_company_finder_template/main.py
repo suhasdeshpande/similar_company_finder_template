@@ -14,8 +14,7 @@ def run():
     Run the crew.
     """
     inputs = {
-        "target_company": "<Placeholder Company>",
-        "our_product": "<Placeholder Product>",
+        "location": "San Francisco, CA",
     }
 
     SimilarCompanyFinderTemplateCrew().run(inputs=inputs)
@@ -25,7 +24,7 @@ def train():
     """
     Train the crew for a given number of iterations.
     """
-    inputs = {"topic": "AI LLMs"}
+    inputs = {"location": "New York, NY"}
     try:
         SimilarCompanyFinderTemplateCrew().crew().train(
             n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs
@@ -50,7 +49,7 @@ def test():
     """
     Test the crew execution and returns the results.
     """
-    inputs = {"topic": "AI LLMs"}
+    inputs = {"location": "Chicago, IL"}
     try:
         SimilarCompanyFinderTemplateCrew().crew().test(
             n_iterations=int(sys.argv[1]), openai_model_name=sys.argv[2], inputs=inputs
